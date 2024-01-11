@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <math.h>
 
 #define DBL_EPS 1e-4
 #define DBL_APPROX(a, b) (std::abs((a) - (b)) < DBL_EPS)
