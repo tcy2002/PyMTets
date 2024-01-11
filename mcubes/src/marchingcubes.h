@@ -110,8 +110,8 @@ void marching_cubes(const vector3& lower, const vector3& upper,
     auto add_vertex = [&](Vector3* v) -> int {
         if (vertex_map.find({v->x, v->y, v->z}) == vertex_map.end()) {
             vertices.push_back(v->x);
-            vertices.push_back(v->y);
             vertices.push_back(v->z);
+            vertices.push_back(v->y);
             vertex_map[{v->x, v->y, v->z}] = ++current_id;
             return current_id;
         } else {
