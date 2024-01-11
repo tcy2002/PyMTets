@@ -9,7 +9,7 @@ This repo is a fork of the original PyMCubes repository, and the marching
 tetrahedra implementation is merged from the [MarchingTetrahedra](https://github.com/andresbejarano/MarchingTetrahedra)
 repo. CCW bug in the latter repo is fixed.
 
-Below is the original README.md file.
+Below is the original README.
 
 # PyMCubes
 
