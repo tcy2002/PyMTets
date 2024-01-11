@@ -124,8 +124,8 @@ void marching_cubes(const vector3& lower, const vector3& upper,
 		    for (int k = 0; k < numz; k++) {
                 for (auto& tri : *triangles[i][j][k]) {
                     polygons.push_back(add_vertex(tri->v0));
-                    polygons.push_back(add_vertex(tri->v1));
                     polygons.push_back(add_vertex(tri->v2));
+                    polygons.push_back(add_vertex(tri->v1));
                 }
 		    }
 		}
