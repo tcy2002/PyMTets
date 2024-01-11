@@ -5,20 +5,17 @@
 #include <stddef.h>
 #include <array>
 #include <vector>
+#include <unordered_map>
+#include "Vector3.h"
+#include "Triangle.h"
 
 namespace mc
 {
 
-extern int edge_table[256];
-extern int triangle_table[256][16];
-
 namespace private_
 {
-
-double mc_isovalue_interpolation(double isovalue, double f1, double f2,
-    double x1, double x2);
-size_t mc_add_vertex(double x1, double y1, double z1, double c2,
-    int axis, double f1, double f2, double isovalue, std::vector<double>* vertices);
+    std::vector<Triangle*>* marchCellTetrahedra(Vector3* v0, Vector3* v1, Vector3* v2, Vector3* v3,
+                                                Vector3* v4, Vector3* v5, Vector3* v6, Vector3* v7, double isovalue);
 }
 
 template<typename vector3, typename formula>
@@ -45,18 +42,22 @@ void marching_cubes(const vector3& lower, const vector3& upper,
     coord_type dy = (upper[1] - lower[1]) / static_cast<coord_type>(numy);
     coord_type dz = (upper[2] - lower[2]) / static_cast<coord_type>(numz);
 
-    const int num_shared_indices = 2 * (numy + 1) * (numz + 1);
-    std::vector<size_type> shared_indices_x(num_shared_indices);
-    std::vector<size_type> shared_indices_y(num_shared_indices);
-    std::vector<size_type> shared_indices_z(num_shared_indices);
-    auto _offset = [&](size_t i, size_t j, size_t k){return i*(numy+1)*(numz+1) + j*(numz+1) + k;};
+    // Generate the 3D data structure where the triangles of each cell will be stored
+	// NOTE: This is done for finding the shells
+	auto triangles = new std::vector<Triangle*>***[numx];
+	for (int i = 0; i < numx; i++)
+	{
+		triangles[i] = new std::vector<Triangle*>**[numy];
+		for (int j = 0; j < numy; j++)
+		{
+			triangles[i][j] = new std::vector<Triangle*>*[numz];
+		}
+	}
 
     for(int i=0; i<numx; ++i)
     {
         coord_type x = lower[0] + dx*i;
         coord_type x_dx = lower[0] + dx*(i+1);
-        const int i_mod_2 = i % 2;
-        const int i_mod_2_inv = (i_mod_2 ? 0 : 1);
 
         for(int j=0; j<numy; ++j)
         {
@@ -72,144 +73,63 @@ void marching_cubes(const vector3& lower, const vector3& upper,
                 coord_type z = lower[2] + dz*k;
                 coord_type z_dz = lower[2] + dz*(k+1);
 
+                // 0-8: (---)(+--)(++-)(-+-)(--+)(+-+)(+++)(-++)
                 v[0] = v[4]; v[1] = v[5];
                 v[2] = v[6]; v[3] = v[7];
                 v[4] = f(x, y, z_dz); v[5] = f(x_dx, y, z_dz);
                 v[6] = f(x_dx, y_dy, z_dz); v[7] = f(x, y_dy, z_dz);
 
-                unsigned int cubeindex = 0;
-                for(int m=0; m<8; ++m)
-                    if(v[m] <= isovalue)
-                        cubeindex |= 1<<m;
+                // 0-8: (---)(+--)(+-+)(--+)(-+-)(++-)(+++)(-++)
+                // the order is changed
+                auto v0 = new Vector3(x, z, y);
+                auto v1 = new Vector3(x_dx, z, y);
+                auto v2 = new Vector3(x_dx, z, y_dy);
+                auto v3 = new Vector3(x, z, y_dy);
+                auto v4 = new Vector3(x, z_dz, y);
+                auto v5 = new Vector3(x_dx, z_dz, y);
+                auto v6 = new Vector3(x_dx, z_dz, y_dy);
+                auto v7 = new Vector3(x, z_dz, y_dy);
 
-                // Generate vertices AVOIDING DUPLICATES.
+                // Isovalue of each point
+                v0->info = v[0]; v1->info = v[1];
+                v2->info = v[2]; v3->info = v[3];
+                v4->info = v[4]; v5->info = v[5];
+                v6->info = v[6]; v7->info = v[7];
 
-                int edges = edge_table[cubeindex];
-                std::array<size_type, 12> indices;
-                if(edges & 0x040)
-                {
-                    size_t index = mc_add_vertex(x_dx, y_dy, z_dz, x, 0, v[6], v[7], isovalue, &vertices);
-                    indices[6] = index;
-                    shared_indices_x[_offset(i_mod_2_inv, j+1, k+1)] = index;
-                }
-                if(edges & 0x020)
-                {
-                    size_t index = mc_add_vertex(x_dx, y, z_dz, y_dy, 1, v[5], v[6], isovalue, &vertices);
-                    indices[5] = index;
-                    shared_indices_y[_offset(i_mod_2_inv, j+1, k+1)] = index;
-                }
-                if(edges & 0x400)
-                {
-                    size_t index = mc_add_vertex(x_dx, y_dy, z, z_dz, 2, v[2], v[6], isovalue, &vertices);
-                    indices[10] = index;
-                    shared_indices_z[_offset(i_mod_2_inv, j+1, k+1)] = index;
-                }
-
-                if(edges & 0x001)
-                {
-                    if(j == 0 && k == 0)
-                    {
-                        size_t index = mc_add_vertex(x, y, z, x_dx, 0, v[0], v[1], isovalue, &vertices);
-                        indices[0] = index;
-                    }
-                    else
-                        indices[0] = shared_indices_x[_offset(i_mod_2_inv, j, k)];
-                }
-                if(edges & 0x002)
-                {
-                    if(k == 0)
-                    {
-                        size_t index = mc_add_vertex(x_dx, y, z, y_dy, 1, v[1], v[2], isovalue, &vertices);
-                        indices[1] = index;
-                        shared_indices_y[_offset(i_mod_2_inv, j+1, k)] = index;
-                    }
-                    else
-                        indices[1] = shared_indices_y[_offset(i_mod_2_inv, j+1, k)];
-                }
-                if(edges & 0x004)
-                {
-                    if(k == 0)
-                    {
-                        size_t index = mc_add_vertex(x_dx, y_dy, z, x, 0, v[2], v[3], isovalue, &vertices);
-                        indices[2] = index;
-                        shared_indices_x[_offset(i_mod_2_inv, j+1, k)] = index;
-                    }
-                    else
-                        indices[2] = shared_indices_x[_offset(i_mod_2_inv, j+1, k)];
-                }
-                if(edges & 0x008)
-                {
-                    if(i == 0 && k == 0)
-                    {
-                        size_t index = mc_add_vertex(x, y_dy, z, y, 1, v[3], v[0], isovalue, &vertices);
-                        indices[3] = index;
-                    }
-                    else
-                        indices[3] = shared_indices_y[_offset(i_mod_2, j+1, k)];
-                }
-                if(edges & 0x010)
-                {
-                    if(j == 0)
-                    {
-                        size_t index = mc_add_vertex(x, y, z_dz, x_dx, 0, v[4], v[5], isovalue, &vertices);
-                        indices[4] = index;
-                        shared_indices_x[_offset(i_mod_2_inv, j, k+1)] = index;
-                    }
-                    else
-                        indices[4] = shared_indices_x[_offset(i_mod_2_inv, j, k+1)];
-                }
-                if(edges & 0x080)
-                {
-                    if(i == 0)
-                    {
-                        size_t index = mc_add_vertex(x, y_dy, z_dz, y, 1, v[7], v[4], isovalue, &vertices);
-                        indices[7] = index;
-                        shared_indices_y[_offset(i_mod_2, j+1, k+1)] = index;
-                    }
-                    else
-                        indices[7] = shared_indices_y[_offset(i_mod_2, j+1, k+1)];
-                }
-                if(edges & 0x100)
-                {
-                    if(i == 0 && j == 0)
-                    {
-                        size_t index = mc_add_vertex(x, y, z, z_dz, 2, v[0], v[4], isovalue, &vertices);
-                        indices[8] = index;
-                    }
-                    else
-                        indices[8] = shared_indices_z[_offset(i_mod_2, j, k+1)];
-                }
-                if(edges & 0x200)
-                {
-                    if(j == 0)
-                    {
-                        size_t index = mc_add_vertex(x_dx, y, z, z_dz, 2, v[1], v[5], isovalue, &vertices);
-                        indices[9] = index;
-                        shared_indices_z[_offset(i_mod_2_inv, j, k+1)] = index;
-                    }
-                    else
-                        indices[9] = shared_indices_z[_offset(i_mod_2_inv, j, k+1)];
-                }
-                if(edges & 0x800)
-                {
-                    if(i == 0)
-                    {
-                        size_t index = mc_add_vertex(x, y_dy, z, z_dz, 2, v[3], v[7], isovalue, &vertices);
-                        indices[11] = index;
-                        shared_indices_z[_offset(i_mod_2, j+1, k+1)] = index;
-                    }
-                    else
-                        indices[11] = shared_indices_z[_offset(i_mod_2, j+1, k+1)];
-                }
-
-                int tri;
-                int* triangle_table_ptr = triangle_table[cubeindex];
-                for(int m=0; tri = triangle_table_ptr[m], tri != -1; ++m)
-                    polygons.push_back(indices[tri]);
+                // March the cell's tetrahedra and store the triangles in the respective cell
+				triangles[i][j][k] = marchCellTetrahedra(v0, v1, v2, v3, v4, v5, v6, v7, isovalue);
             }
         }
     }
 
+    // Hash map to record the index
+    std::unordered_map<Vector3, int, Vector3Hash> vertex_map;
+    int current_id = -1;
+
+    // Lambda to add a new vertex to both the list and hash map
+    auto add_vertex = [&](Vector3* v) -> int {
+        if (vertex_map.find({v->x, v->y, v->z}) == vertex_map.end()) {
+            vertices.push_back(v->x);
+            vertices.push_back(v->y);
+            vertices.push_back(v->z);
+            vertex_map[{v->x, v->y, v->z}] = ++current_id;
+            return current_id;
+        } else {
+            return vertex_map[{v->x, v->y, v->z}];
+        }
+    };
+
+    for (int i = 0; i < numx; i++) {
+		for (int j = 0; j < numy; j++) {
+		    for (int k = 0; k < numz; k++) {
+                for (auto& tri : *triangles[i][j][k]) {
+                    polygons.push_back(add_vertex(tri->v0));
+                    polygons.push_back(add_vertex(tri->v1));
+                    polygons.push_back(add_vertex(tri->v2));
+                }
+		    }
+		}
+	}
 }
 
 }

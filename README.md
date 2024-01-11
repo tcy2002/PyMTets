@@ -1,3 +1,14 @@
+# PyMTets
+
+`PyMTets` is an alternative implementation of the marching cubes algorithm, 
+where the cube voxels are further subdivided into tetrahedra. This allows for
+a more accurate representation of the surface, and has more robustness in comparison
+to the original marching cubes algorithm.
+
+This repo is a fork of the original PyMCubes repository, and the marching
+tetrahedra implementation is merged from the [MarchingTetrahedra](https://github.com/andresbejarano/MarchingTetrahedra)
+repo. CCW bug in the latter repo is fixed.
+
 # PyMCubes
 
 `PyMCubes` is an implementation of the marching cubes algorithm to extract

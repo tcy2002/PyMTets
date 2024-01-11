@@ -4,329 +4,363 @@
 namespace mc
 {
 
-int edge_table[256] =
-{
-    0x000, 0x109, 0x203, 0x30a, 0x406, 0x50f, 0x605, 0x70c, 0x80c, 0x905, 0xa0f, 0xb06, 0xc0a, 0xd03, 0xe09, 0xf00,
-    0x190, 0x099, 0x393, 0x29a, 0x596, 0x49f, 0x795, 0x69c, 0x99c, 0x895, 0xb9f, 0xa96, 0xd9a, 0xc93, 0xf99, 0xe90,
-    0x230, 0x339, 0x033, 0x13a, 0x636, 0x73f, 0x435, 0x53c, 0xa3c, 0xb35, 0x83f, 0x936, 0xe3a, 0xf33, 0xc39, 0xd30,
-    0x3a0, 0x2a9, 0x1a3, 0x0aa, 0x7a6, 0x6af, 0x5a5, 0x4ac, 0xbac, 0xaa5, 0x9af, 0x8a6, 0xfaa, 0xea3, 0xda9, 0xca0,
-    0x460, 0x569, 0x663, 0x76a, 0x066, 0x16f, 0x265, 0x36c, 0xc6c, 0xd65, 0xe6f, 0xf66, 0x86a, 0x963, 0xa69, 0xb60,
-    0x5f0, 0x4f9, 0x7f3, 0x6fa, 0x1f6, 0x0ff, 0x3f5, 0x2fc, 0xdfc, 0xcf5, 0xfff, 0xef6, 0x9fa, 0x8f3, 0xbf9, 0xaf0,
-    0x650, 0x759, 0x453, 0x55a, 0x256, 0x35f, 0x055, 0x15c, 0xe5c, 0xf55, 0xc5f, 0xd56, 0xa5a, 0xb53, 0x859, 0x950,
-    0x7c0, 0x6c9, 0x5c3, 0x4ca, 0x3c6, 0x2cf, 0x1c5, 0x0cc, 0xfcc, 0xec5, 0xdcf, 0xcc6, 0xbca, 0xac3, 0x9c9, 0x8c0,
-    0x8c0, 0x9c9, 0xac3, 0xbca, 0xcc6, 0xdcf, 0xec5, 0xfcc, 0x0cc, 0x1c5, 0x2cf, 0x3c6, 0x4ca, 0x5c3, 0x6c9, 0x7c0,
-    0x950, 0x859, 0xb53, 0xa5a, 0xd56, 0xc5f, 0xf55, 0xe5c, 0x15c, 0x055, 0x35f, 0x256, 0x55a, 0x453, 0x759, 0x650,
-    0xaf0, 0xbf9, 0x8f3, 0x9fa, 0xef6, 0xfff, 0xcf5, 0xdfc, 0x2fc, 0x3f5, 0x0ff, 0x1f6, 0x6fa, 0x7f3, 0x4f9, 0x5f0,
-    0xb60, 0xa69, 0x963, 0x86a, 0xf66, 0xe6f, 0xd65, 0xc6c, 0x36c, 0x265, 0x16f, 0x066, 0x76a, 0x663, 0x569, 0x460,
-    0xca0, 0xda9, 0xea3, 0xfaa, 0x8a6, 0x9af, 0xaa5, 0xbac, 0x4ac, 0x5a5, 0x6af, 0x7a6, 0x0aa, 0x1a3, 0x2a9, 0x3a0,
-    0xd30, 0xc39, 0xf33, 0xe3a, 0x936, 0x83f, 0xb35, 0xa3c, 0x53c, 0x435, 0x73f, 0x636, 0x13a, 0x033, 0x339, 0x230,
-    0xe90, 0xf99, 0xc93, 0xd9a, 0xa96, 0xb9f, 0x895, 0x99c, 0x69c, 0x795, 0x49f, 0x596, 0x29a, 0x393, 0x099, 0x190,
-    0xf00, 0xe09, 0xd03, 0xc0a, 0xb06, 0xa0f, 0x905, 0x80c, 0x70c, 0x605, 0x50f, 0x406, 0x30a, 0x203, 0x109, 0x000
-};
-
-int triangle_table[256][16] =
-{
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {0, 8, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {0, 1, 9, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {1, 8, 3, 9, 8, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {1, 2, 10, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {0, 8, 3, 1, 2, 10, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {9, 2, 10, 0, 2, 9, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {2, 8, 3, 2, 10, 8, 10, 9, 8, -1, -1, -1, -1, -1, -1, -1},
-    {3, 11, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {0, 11, 2, 8, 11, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {1, 9, 0, 2, 3, 11, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {1, 11, 2, 1, 9, 11, 9, 8, 11, -1, -1, -1, -1, -1, -1, -1},
-    {3, 10, 1, 11, 10, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {0, 10, 1, 0, 8, 10, 8, 11, 10, -1, -1, -1, -1, -1, -1, -1},
-    {3, 9, 0, 3, 11, 9, 11, 10, 9, -1, -1, -1, -1, -1, -1, -1},
-    {9, 8, 10, 10, 8, 11, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {4, 7, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {4, 3, 0, 7, 3, 4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {0, 1, 9, 8, 4, 7, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {4, 1, 9, 4, 7, 1, 7, 3, 1, -1, -1, -1, -1, -1, -1, -1},
-    {1, 2, 10, 8, 4, 7, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {3, 4, 7, 3, 0, 4, 1, 2, 10, -1, -1, -1, -1, -1, -1, -1},
-    {9, 2, 10, 9, 0, 2, 8, 4, 7, -1, -1, -1, -1, -1, -1, -1},
-    {2, 10, 9, 2, 9, 7, 2, 7, 3, 7, 9, 4, -1, -1, -1, -1},
-    {8, 4, 7, 3, 11, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {11, 4, 7, 11, 2, 4, 2, 0, 4, -1, -1, -1, -1, -1, -1, -1},
-    {9, 0, 1, 8, 4, 7, 2, 3, 11, -1, -1, -1, -1, -1, -1, -1},
-    {4, 7, 11, 9, 4, 11, 9, 11, 2, 9, 2, 1, -1, -1, -1, -1},
-    {3, 10, 1, 3, 11, 10, 7, 8, 4, -1, -1, -1, -1, -1, -1, -1},
-    {1, 11, 10, 1, 4, 11, 1, 0, 4, 7, 11, 4, -1, -1, -1, -1},
-    {4, 7, 8, 9, 0, 11, 9, 11, 10, 11, 0, 3, -1, -1, -1, -1},
-    {4, 7, 11, 4, 11, 9, 9, 11, 10, -1, -1, -1, -1, -1, -1, -1},
-    {9, 5, 4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {9, 5, 4, 0, 8, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {0, 5, 4, 1, 5, 0, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {8, 5, 4, 8, 3, 5, 3, 1, 5, -1, -1, -1, -1, -1, -1, -1},
-    {1, 2, 10, 9, 5, 4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {3, 0, 8, 1, 2, 10, 4, 9, 5, -1, -1, -1, -1, -1, -1, -1},
-    {5, 2, 10, 5, 4, 2, 4, 0, 2, -1, -1, -1, -1, -1, -1, -1},
-    {2, 10, 5, 3, 2, 5, 3, 5, 4, 3, 4, 8, -1, -1, -1, -1},
-    {9, 5, 4, 2, 3, 11, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {0, 11, 2, 0, 8, 11, 4, 9, 5, -1, -1, -1, -1, -1, -1, -1},
-    {0, 5, 4, 0, 1, 5, 2, 3, 11, -1, -1, -1, -1, -1, -1, -1},
-    {2, 1, 5, 2, 5, 8, 2, 8, 11, 4, 8, 5, -1, -1, -1, -1},
-    {10, 3, 11, 10, 1, 3, 9, 5, 4, -1, -1, -1, -1, -1, -1, -1},
-    {4, 9, 5, 0, 8, 1, 8, 10, 1, 8, 11, 10, -1, -1, -1, -1},
-    {5, 4, 0, 5, 0, 11, 5, 11, 10, 11, 0, 3, -1, -1, -1, -1},
-    {5, 4, 8, 5, 8, 10, 10, 8, 11, -1, -1, -1, -1, -1, -1, -1},
-    {9, 7, 8, 5, 7, 9, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {9, 3, 0, 9, 5, 3, 5, 7, 3, -1, -1, -1, -1, -1, -1, -1},
-    {0, 7, 8, 0, 1, 7, 1, 5, 7, -1, -1, -1, -1, -1, -1, -1},
-    {1, 5, 3, 3, 5, 7, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {9, 7, 8, 9, 5, 7, 10, 1, 2, -1, -1, -1, -1, -1, -1, -1},
-    {10, 1, 2, 9, 5, 0, 5, 3, 0, 5, 7, 3, -1, -1, -1, -1},
-    {8, 0, 2, 8, 2, 5, 8, 5, 7, 10, 5, 2, -1, -1, -1, -1},
-    {2, 10, 5, 2, 5, 3, 3, 5, 7, -1, -1, -1, -1, -1, -1, -1},
-    {7, 9, 5, 7, 8, 9, 3, 11, 2, -1, -1, -1, -1, -1, -1, -1},
-    {9, 5, 7, 9, 7, 2, 9, 2, 0, 2, 7, 11, -1, -1, -1, -1},
-    {2, 3, 11, 0, 1, 8, 1, 7, 8, 1, 5, 7, -1, -1, -1, -1},
-    {11, 2, 1, 11, 1, 7, 7, 1, 5, -1, -1, -1, -1, -1, -1, -1},
-    {9, 5, 8, 8, 5, 7, 10, 1, 3, 10, 3, 11, -1, -1, -1, -1},
-    {5, 7, 0, 5, 0, 9, 7, 11, 0, 1, 0, 10, 11, 10, 0, -1},
-    {11, 10, 0, 11, 0, 3, 10, 5, 0, 8, 0, 7, 5, 7, 0, -1},
-    {11, 10, 5, 7, 11, 5, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {10, 6, 5, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {0, 8, 3, 5, 10, 6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {9, 0, 1, 5, 10, 6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {1, 8, 3, 1, 9, 8, 5, 10, 6, -1, -1, -1, -1, -1, -1, -1},
-    {1, 6, 5, 2, 6, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {1, 6, 5, 1, 2, 6, 3, 0, 8, -1, -1, -1, -1, -1, -1, -1},
-    {9, 6, 5, 9, 0, 6, 0, 2, 6, -1, -1, -1, -1, -1, -1, -1},
-    {5, 9, 8, 5, 8, 2, 5, 2, 6, 3, 2, 8, -1, -1, -1, -1},
-    {2, 3, 11, 10, 6, 5, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {11, 0, 8, 11, 2, 0, 10, 6, 5, -1, -1, -1, -1, -1, -1, -1},
-    {0, 1, 9, 2, 3, 11, 5, 10, 6, -1, -1, -1, -1, -1, -1, -1},
-    {5, 10, 6, 1, 9, 2, 9, 11, 2, 9, 8, 11, -1, -1, -1, -1},
-    {6, 3, 11, 6, 5, 3, 5, 1, 3, -1, -1, -1, -1, -1, -1, -1},
-    {0, 8, 11, 0, 11, 5, 0, 5, 1, 5, 11, 6, -1, -1, -1, -1},
-    {3, 11, 6, 0, 3, 6, 0, 6, 5, 0, 5, 9, -1, -1, -1, -1},
-    {6, 5, 9, 6, 9, 11, 11, 9, 8, -1, -1, -1, -1, -1, -1, -1},
-    {5, 10, 6, 4, 7, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {4, 3, 0, 4, 7, 3, 6, 5, 10, -1, -1, -1, -1, -1, -1, -1},
-    {1, 9, 0, 5, 10, 6, 8, 4, 7, -1, -1, -1, -1, -1, -1, -1},
-    {10, 6, 5, 1, 9, 7, 1, 7, 3, 7, 9, 4, -1, -1, -1, -1},
-    {6, 1, 2, 6, 5, 1, 4, 7, 8, -1, -1, -1, -1, -1, -1, -1},
-    {1, 2, 5, 5, 2, 6, 3, 0, 4, 3, 4, 7, -1, -1, -1, -1},
-    {8, 4, 7, 9, 0, 5, 0, 6, 5, 0, 2, 6, -1, -1, -1, -1},
-    {7, 3, 9, 7, 9, 4, 3, 2, 9, 5, 9, 6, 2, 6, 9, -1},
-    {3, 11, 2, 7, 8, 4, 10, 6, 5, -1, -1, -1, -1, -1, -1, -1},
-    {5, 10, 6, 4, 7, 2, 4, 2, 0, 2, 7, 11, -1, -1, -1, -1},
-    {0, 1, 9, 4, 7, 8, 2, 3, 11, 5, 10, 6, -1, -1, -1, -1},
-    {9, 2, 1, 9, 11, 2, 9, 4, 11, 7, 11, 4, 5, 10, 6, -1},
-    {8, 4, 7, 3, 11, 5, 3, 5, 1, 5, 11, 6, -1, -1, -1, -1},
-    {5, 1, 11, 5, 11, 6, 1, 0, 11, 7, 11, 4, 0, 4, 11, -1},
-    {0, 5, 9, 0, 6, 5, 0, 3, 6, 11, 6, 3, 8, 4, 7, -1},
-    {6, 5, 9, 6, 9, 11, 4, 7, 9, 7, 11, 9, -1, -1, -1, -1},
-    {10, 4, 9, 6, 4, 10, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {4, 10, 6, 4, 9, 10, 0, 8, 3, -1, -1, -1, -1, -1, -1, -1},
-    {10, 0, 1, 10, 6, 0, 6, 4, 0, -1, -1, -1, -1, -1, -1, -1},
-    {8, 3, 1, 8, 1, 6, 8, 6, 4, 6, 1, 10, -1, -1, -1, -1},
-    {1, 4, 9, 1, 2, 4, 2, 6, 4, -1, -1, -1, -1, -1, -1, -1},
-    {3, 0, 8, 1, 2, 9, 2, 4, 9, 2, 6, 4, -1, -1, -1, -1},
-    {0, 2, 4, 4, 2, 6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {8, 3, 2, 8, 2, 4, 4, 2, 6, -1, -1, -1, -1, -1, -1, -1},
-    {10, 4, 9, 10, 6, 4, 11, 2, 3, -1, -1, -1, -1, -1, -1, -1},
-    {0, 8, 2, 2, 8, 11, 4, 9, 10, 4, 10, 6, -1, -1, -1, -1},
-    {3, 11, 2, 0, 1, 6, 0, 6, 4, 6, 1, 10, -1, -1, -1, -1},
-    {6, 4, 1, 6, 1, 10, 4, 8, 1, 2, 1, 11, 8, 11, 1, -1},
-    {9, 6, 4, 9, 3, 6, 9, 1, 3, 11, 6, 3, -1, -1, -1, -1},
-    {8, 11, 1, 8, 1, 0, 11, 6, 1, 9, 1, 4, 6, 4, 1, -1},
-    {3, 11, 6, 3, 6, 0, 0, 6, 4, -1, -1, -1, -1, -1, -1, -1},
-    {6, 4, 8, 11, 6, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {7, 10, 6, 7, 8, 10, 8, 9, 10, -1, -1, -1, -1, -1, -1, -1},
-    {0, 7, 3, 0, 10, 7, 0, 9, 10, 6, 7, 10, -1, -1, -1, -1},
-    {10, 6, 7, 1, 10, 7, 1, 7, 8, 1, 8, 0, -1, -1, -1, -1},
-    {10, 6, 7, 10, 7, 1, 1, 7, 3, -1, -1, -1, -1, -1, -1, -1},
-    {1, 2, 6, 1, 6, 8, 1, 8, 9, 8, 6, 7, -1, -1, -1, -1},
-    {2, 6, 9, 2, 9, 1, 6, 7, 9, 0, 9, 3, 7, 3, 9, -1},
-    {7, 8, 0, 7, 0, 6, 6, 0, 2, -1, -1, -1, -1, -1, -1, -1},
-    {7, 3, 2, 6, 7, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {2, 3, 11, 10, 6, 8, 10, 8, 9, 8, 6, 7, -1, -1, -1, -1},
-    {2, 0, 7, 2, 7, 11, 0, 9, 7, 6, 7, 10, 9, 10, 7, -1},
-    {1, 8, 0, 1, 7, 8, 1, 10, 7, 6, 7, 10, 2, 3, 11, -1},
-    {11, 2, 1, 11, 1, 7, 10, 6, 1, 6, 7, 1, -1, -1, -1, -1},
-    {8, 9, 6, 8, 6, 7, 9, 1, 6, 11, 6, 3, 1, 3, 6, -1},
-    {0, 9, 1, 11, 6, 7, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {7, 8, 0, 7, 0, 6, 3, 11, 0, 11, 6, 0, -1, -1, -1, -1},
-    {7, 11, 6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {7, 6, 11, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {3, 0, 8, 11, 7, 6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {0, 1, 9, 11, 7, 6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {8, 1, 9, 8, 3, 1, 11, 7, 6, -1, -1, -1, -1, -1, -1, -1},
-    {10, 1, 2, 6, 11, 7, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {1, 2, 10, 3, 0, 8, 6, 11, 7, -1, -1, -1, -1, -1, -1, -1},
-    {2, 9, 0, 2, 10, 9, 6, 11, 7, -1, -1, -1, -1, -1, -1, -1},
-    {6, 11, 7, 2, 10, 3, 10, 8, 3, 10, 9, 8, -1, -1, -1, -1},
-    {7, 2, 3, 6, 2, 7, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {7, 0, 8, 7, 6, 0, 6, 2, 0, -1, -1, -1, -1, -1, -1, -1},
-    {2, 7, 6, 2, 3, 7, 0, 1, 9, -1, -1, -1, -1, -1, -1, -1},
-    {1, 6, 2, 1, 8, 6, 1, 9, 8, 8, 7, 6, -1, -1, -1, -1},
-    {10, 7, 6, 10, 1, 7, 1, 3, 7, -1, -1, -1, -1, -1, -1, -1},
-    {10, 7, 6, 1, 7, 10, 1, 8, 7, 1, 0, 8, -1, -1, -1, -1},
-    {0, 3, 7, 0, 7, 10, 0, 10, 9, 6, 10, 7, -1, -1, -1, -1},
-    {7, 6, 10, 7, 10, 8, 8, 10, 9, -1, -1, -1, -1, -1, -1, -1},
-    {6, 8, 4, 11, 8, 6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {3, 6, 11, 3, 0, 6, 0, 4, 6, -1, -1, -1, -1, -1, -1, -1},
-    {8, 6, 11, 8, 4, 6, 9, 0, 1, -1, -1, -1, -1, -1, -1, -1},
-    {9, 4, 6, 9, 6, 3, 9, 3, 1, 11, 3, 6, -1, -1, -1, -1},
-    {6, 8, 4, 6, 11, 8, 2, 10, 1, -1, -1, -1, -1, -1, -1, -1},
-    {1, 2, 10, 3, 0, 11, 0, 6, 11, 0, 4, 6, -1, -1, -1, -1},
-    {4, 11, 8, 4, 6, 11, 0, 2, 9, 2, 10, 9, -1, -1, -1, -1},
-    {10, 9, 3, 10, 3, 2, 9, 4, 3, 11, 3, 6, 4, 6, 3, -1},
-    {8, 2, 3, 8, 4, 2, 4, 6, 2, -1, -1, -1, -1, -1, -1, -1},
-    {0, 4, 2, 4, 6, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {1, 9, 0, 2, 3, 4, 2, 4, 6, 4, 3, 8, -1, -1, -1, -1},
-    {1, 9, 4, 1, 4, 2, 2, 4, 6, -1, -1, -1, -1, -1, -1, -1},
-    {8, 1, 3, 8, 6, 1, 8, 4, 6, 6, 10, 1, -1, -1, -1, -1},
-    {10, 1, 0, 10, 0, 6, 6, 0, 4, -1, -1, -1, -1, -1, -1, -1},
-    {4, 6, 3, 4, 3, 8, 6, 10, 3, 0, 3, 9, 10, 9, 3, -1},
-    {10, 9, 4, 6, 10, 4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {4, 9, 5, 7, 6, 11, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {0, 8, 3, 4, 9, 5, 11, 7, 6, -1, -1, -1, -1, -1, -1, -1},
-    {5, 0, 1, 5, 4, 0, 7, 6, 11, -1, -1, -1, -1, -1, -1, -1},
-    {11, 7, 6, 8, 3, 4, 3, 5, 4, 3, 1, 5, -1, -1, -1, -1},
-    {9, 5, 4, 10, 1, 2, 7, 6, 11, -1, -1, -1, -1, -1, -1, -1},
-    {6, 11, 7, 1, 2, 10, 0, 8, 3, 4, 9, 5, -1, -1, -1, -1},
-    {7, 6, 11, 5, 4, 10, 4, 2, 10, 4, 0, 2, -1, -1, -1, -1},
-    {3, 4, 8, 3, 5, 4, 3, 2, 5, 10, 5, 2, 11, 7, 6, -1},
-    {7, 2, 3, 7, 6, 2, 5, 4, 9, -1, -1, -1, -1, -1, -1, -1},
-    {9, 5, 4, 0, 8, 6, 0, 6, 2, 6, 8, 7, -1, -1, -1, -1},
-    {3, 6, 2, 3, 7, 6, 1, 5, 0, 5, 4, 0, -1, -1, -1, -1},
-    {6, 2, 8, 6, 8, 7, 2, 1, 8, 4, 8, 5, 1, 5, 8, -1},
-    {9, 5, 4, 10, 1, 6, 1, 7, 6, 1, 3, 7, -1, -1, -1, -1},
-    {1, 6, 10, 1, 7, 6, 1, 0, 7, 8, 7, 0, 9, 5, 4, -1},
-    {4, 0, 10, 4, 10, 5, 0, 3, 10, 6, 10, 7, 3, 7, 10, -1},
-    {7, 6, 10, 7, 10, 8, 5, 4, 10, 4, 8, 10, -1, -1, -1, -1},
-    {6, 9, 5, 6, 11, 9, 11, 8, 9, -1, -1, -1, -1, -1, -1, -1},
-    {3, 6, 11, 0, 6, 3, 0, 5, 6, 0, 9, 5, -1, -1, -1, -1},
-    {0, 11, 8, 0, 5, 11, 0, 1, 5, 5, 6, 11, -1, -1, -1, -1},
-    {6, 11, 3, 6, 3, 5, 5, 3, 1, -1, -1, -1, -1, -1, -1, -1},
-    {1, 2, 10, 9, 5, 11, 9, 11, 8, 11, 5, 6, -1, -1, -1, -1},
-    {0, 11, 3, 0, 6, 11, 0, 9, 6, 5, 6, 9, 1, 2, 10, -1},
-    {11, 8, 5, 11, 5, 6, 8, 0, 5, 10, 5, 2, 0, 2, 5, -1},
-    {6, 11, 3, 6, 3, 5, 2, 10, 3, 10, 5, 3, -1, -1, -1, -1},
-    {5, 8, 9, 5, 2, 8, 5, 6, 2, 3, 8, 2, -1, -1, -1, -1},
-    {9, 5, 6, 9, 6, 0, 0, 6, 2, -1, -1, -1, -1, -1, -1, -1},
-    {1, 5, 8, 1, 8, 0, 5, 6, 8, 3, 8, 2, 6, 2, 8, -1},
-    {1, 5, 6, 2, 1, 6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {1, 3, 6, 1, 6, 10, 3, 8, 6, 5, 6, 9, 8, 9, 6, -1},
-    {10, 1, 0, 10, 0, 6, 9, 5, 0, 5, 6, 0, -1, -1, -1, -1},
-    {0, 3, 8, 5, 6, 10, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {10, 5, 6, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {11, 5, 10, 7, 5, 11, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {11, 5, 10, 11, 7, 5, 8, 3, 0, -1, -1, -1, -1, -1, -1, -1},
-    {5, 11, 7, 5, 10, 11, 1, 9, 0, -1, -1, -1, -1, -1, -1, -1},
-    {10, 7, 5, 10, 11, 7, 9, 8, 1, 8, 3, 1, -1, -1, -1, -1},
-    {11, 1, 2, 11, 7, 1, 7, 5, 1, -1, -1, -1, -1, -1, -1, -1},
-    {0, 8, 3, 1, 2, 7, 1, 7, 5, 7, 2, 11, -1, -1, -1, -1},
-    {9, 7, 5, 9, 2, 7, 9, 0, 2, 2, 11, 7, -1, -1, -1, -1},
-    {7, 5, 2, 7, 2, 11, 5, 9, 2, 3, 2, 8, 9, 8, 2, -1},
-    {2, 5, 10, 2, 3, 5, 3, 7, 5, -1, -1, -1, -1, -1, -1, -1},
-    {8, 2, 0, 8, 5, 2, 8, 7, 5, 10, 2, 5, -1, -1, -1, -1},
-    {9, 0, 1, 5, 10, 3, 5, 3, 7, 3, 10, 2, -1, -1, -1, -1},
-    {9, 8, 2, 9, 2, 1, 8, 7, 2, 10, 2, 5, 7, 5, 2, -1},
-    {1, 3, 5, 3, 7, 5, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {0, 8, 7, 0, 7, 1, 1, 7, 5, -1, -1, -1, -1, -1, -1, -1},
-    {9, 0, 3, 9, 3, 5, 5, 3, 7, -1, -1, -1, -1, -1, -1, -1},
-    {9, 8, 7, 5, 9, 7, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {5, 8, 4, 5, 10, 8, 10, 11, 8, -1, -1, -1, -1, -1, -1, -1},
-    {5, 0, 4, 5, 11, 0, 5, 10, 11, 11, 3, 0, -1, -1, -1, -1},
-    {0, 1, 9, 8, 4, 10, 8, 10, 11, 10, 4, 5, -1, -1, -1, -1},
-    {10, 11, 4, 10, 4, 5, 11, 3, 4, 9, 4, 1, 3, 1, 4, -1},
-    {2, 5, 1, 2, 8, 5, 2, 11, 8, 4, 5, 8, -1, -1, -1, -1},
-    {0, 4, 11, 0, 11, 3, 4, 5, 11, 2, 11, 1, 5, 1, 11, -1},
-    {0, 2, 5, 0, 5, 9, 2, 11, 5, 4, 5, 8, 11, 8, 5, -1},
-    {9, 4, 5, 2, 11, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {2, 5, 10, 3, 5, 2, 3, 4, 5, 3, 8, 4, -1, -1, -1, -1},
-    {5, 10, 2, 5, 2, 4, 4, 2, 0, -1, -1, -1, -1, -1, -1, -1},
-    {3, 10, 2, 3, 5, 10, 3, 8, 5, 4, 5, 8, 0, 1, 9, -1},
-    {5, 10, 2, 5, 2, 4, 1, 9, 2, 9, 4, 2, -1, -1, -1, -1},
-    {8, 4, 5, 8, 5, 3, 3, 5, 1, -1, -1, -1, -1, -1, -1, -1},
-    {0, 4, 5, 1, 0, 5, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {8, 4, 5, 8, 5, 3, 9, 0, 5, 0, 3, 5, -1, -1, -1, -1},
-    {9, 4, 5, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {4, 11, 7, 4, 9, 11, 9, 10, 11, -1, -1, -1, -1, -1, -1, -1},
-    {0, 8, 3, 4, 9, 7, 9, 11, 7, 9, 10, 11, -1, -1, -1, -1},
-    {1, 10, 11, 1, 11, 4, 1, 4, 0, 7, 4, 11, -1, -1, -1, -1},
-    {3, 1, 4, 3, 4, 8, 1, 10, 4, 7, 4, 11, 10, 11, 4, -1},
-    {4, 11, 7, 9, 11, 4, 9, 2, 11, 9, 1, 2, -1, -1, -1, -1},
-    {9, 7, 4, 9, 11, 7, 9, 1, 11, 2, 11, 1, 0, 8, 3, -1},
-    {11, 7, 4, 11, 4, 2, 2, 4, 0, -1, -1, -1, -1, -1, -1, -1},
-    {11, 7, 4, 11, 4, 2, 8, 3, 4, 3, 2, 4, -1, -1, -1, -1},
-    {2, 9, 10, 2, 7, 9, 2, 3, 7, 7, 4, 9, -1, -1, -1, -1},
-    {9, 10, 7, 9, 7, 4, 10, 2, 7, 8, 7, 0, 2, 0, 7, -1},
-    {3, 7, 10, 3, 10, 2, 7, 4, 10, 1, 10, 0, 4, 0, 10, -1},
-    {1, 10, 2, 8, 7, 4, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {4, 9, 1, 4, 1, 7, 7, 1, 3, -1, -1, -1, -1, -1, -1, -1},
-    {4, 9, 1, 4, 1, 7, 0, 8, 1, 8, 7, 1, -1, -1, -1, -1},
-    {4, 0, 3, 7, 4, 3, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {4, 8, 7, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {9, 10, 8, 10, 11, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {3, 0, 9, 3, 9, 11, 11, 9, 10, -1, -1, -1, -1, -1, -1, -1},
-    {0, 1, 10, 0, 10, 8, 8, 10, 11, -1, -1, -1, -1, -1, -1, -1},
-    {3, 1, 10, 11, 3, 10, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {1, 2, 11, 1, 11, 9, 9, 11, 8, -1, -1, -1, -1, -1, -1, -1},
-    {3, 0, 9, 3, 9, 11, 1, 2, 9, 2, 11, 9, -1, -1, -1, -1},
-    {0, 2, 11, 8, 0, 11, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {3, 2, 11, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {2, 3, 8, 2, 8, 10, 10, 8, 9, -1, -1, -1, -1, -1, -1, -1},
-    {9, 10, 2, 0, 9, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {2, 3, 8, 2, 8, 10, 0, 1, 8, 1, 10, 8, -1, -1, -1, -1},
-    {1, 10, 2, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {1, 3, 8, 9, 1, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {0, 9, 1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {0, 3, 8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
-    {-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1}
-};
-
 namespace private_
 {
 
-double mc_isovalue_interpolation(double isovalue, double f1, double f2,
-                                double x1, double x2)
+/*
+	Returns the parameter t such that it gives the linear interpolation value f between f1 and f2
+*/
+double inverseLinearInterpolation(double f, double f1, double f2)
 {
-    if(f2==f1)
-        return (x2+x1)/2;
-
-    return (x2-x1)*(isovalue-f1)/(f2-f1) + x1;
+	return (f - f1) / (f2 - f1);
 }
 
-size_t mc_add_vertex(double x1, double y1, double z1, double c2,
-    int axis, double f1, double f2, double isovalue, std::vector<double>* vertices)
+/*
+	Builds the triangle corresponding to the indicated vertices and given isovalue
+	@param V0 Vertex that has a different value from the other three vertices. If this is positive
+	the other vertices must be negative, and viceversa
+	@param V1 The next vertex in counter clockwise order
+	@param V2 The next next vertex in counter clockwise order
+	@param V3 The vertex that is not on the plane where V0, V1 and V2 are
+	@param isovalue The isovalue to be considered for inverse interpolation
+	@return The pointer to the generated triangle
+*/
+Triangle* buildTriangle(Vector3* V0, Vector3* V1, Vector3* V2, Vector3* V3, double isovalue)
 {
-    size_t vertex_index = vertices->size() / 3;
-    if(axis == 0)
-    {
-        double x = mc_isovalue_interpolation(isovalue, f1, f2, x1, c2);
-        vertices->push_back(x);
-        vertices->push_back(y1);
-        vertices->push_back(z1);
-        return vertex_index;
-    }
-    if(axis == 1)
-    {
-        double y = mc_isovalue_interpolation(isovalue, f1, f2, y1, c2);
-        vertices->push_back(x1);
-        vertices->push_back(y);
-        vertices->push_back(z1);
-        return vertex_index;
-    }
-    if(axis == 2)
-    {
-        double z = mc_isovalue_interpolation(isovalue, f1, f2, z1, c2);
-        vertices->push_back(x1);
-        vertices->push_back(y1);
-        vertices->push_back(z);
-        return vertex_index;
+	// Get the t parameters for the intersected values in the edges
+	double t01 = inverseLinearInterpolation(isovalue, V0->info, V1->info);
+	double t02 = inverseLinearInterpolation(isovalue, V0->info, V2->info);
+	double t03 = inverseLinearInterpolation(isovalue, V0->info, V3->info);
+
+	// Interpolate values and get the triangle vertices
+	Vector3* T0 = V0->interpolate(t01, V1);
+	Vector3* T1 = V0->interpolate(t03, V3);
+	Vector3* T2 = V0->interpolate(t02, V2);
+
+	// Generate the triangle
+	Triangle* T = new Triangle(T0, T1, T2);
+    if ((V0->info > isovalue) ^ T->isCCW(V0)) {
+        T->v1 = T2;
+        T->v2 = T1;
     }
 
-    // This should not happen.
-    return -1;
+	// If it happens to be a degenerate triangle (all the vertices are in the same point) then
+	// return NULL, Otherwise return the triangle
+	return (T->isPoint()) ? NULL : T;
+}
+
+/*
+	Builds the two triangles corresponding to the indicated vertices and given isovalue
+	@param V0 One of the vertices that has a different value from the other two vertices. If this is positive
+	the other vertices must be negative, and viceversa
+	@param V1 The other vertex with the same sign value as V0
+	@param V2 The next next vertex in counter clockwise order
+	@param V3 The vertex that is not on the plane where V0, V1 and V2 are
+	@param isovalue The isovalue to be considered for inverse interpolation
+	@return The pointer to a vector with the generated triangles
+*/
+std::vector<Triangle*>* buildTriangles(Vector3* V0, Vector3* V1, Vector3* V2, Vector3* V3, double isovalue)
+{
+	// Get the t parameters for the intersected values in the edges
+	double t02 = inverseLinearInterpolation(isovalue, V0->info, V2->info);
+	double t03 = inverseLinearInterpolation(isovalue, V0->info, V3->info);
+	double t12 = inverseLinearInterpolation(isovalue, V1->info, V2->info);
+	double t13 = inverseLinearInterpolation(isovalue, V1->info, V3->info);
+
+	Vector3* T0 = V0->interpolate(t02, V2);
+	Vector3* T1 = V1->interpolate(t12, V2);
+	Vector3* T2 = V1->interpolate(t13, V3);
+	Vector3* T3 = V0->interpolate(t03, V3);
+
+	// Generate the triangles and store them in a vector
+	Triangle* triangle1 = new Triangle(T0, T1, T2);
+    if ((V0->info > isovalue) ^ triangle1->isCCW(V0)) {
+        triangle1->v1 = T2;
+        triangle1->v2 = T1;
+    }
+
+	Triangle* triangle2 = new Triangle(T2, T3, T0);
+    if ((V0->info > isovalue) ^ triangle2->isCCW(V0)) {
+        triangle2->v1 = T0;
+        triangle2->v2 = T3;
+    }
+
+	std::vector<Triangle*>* triangles = new std::vector<Triangle*>();
+
+	// If the triangles are not degenerate (their vertices are the same point) then add them to the triangles vector
+	if (!triangle1->isPoint())
+	{
+		triangles->push_back(triangle1);
+	}
+
+	if (!triangle2->isPoint())
+	{
+		triangles->push_back(triangle2);
+	}
+
+	// Returns the triangles
+	return triangles;
+}
+
+/*
+	March the tetrahedron given by its vertices and returns the generated triangles
+	@param V0
+	@param V1
+	@param V2
+	@param V3
+	@param isovalue
+	@return A pointer to a vector with the generated triangles
+*/
+std::vector<Triangle*>* marchTetrahedra(Vector3* V0, Vector3* V1, Vector3* V2, Vector3* V3, double isovalue)
+{
+	// Initialize the vector where the triangles will be stored
+	std::vector<Triangle*>* triangles = new std::vector<Triangle*>();
+
+	// Define the signs of each vertex of the tetrahedron
+	int s0 = (V0->info > isovalue) ? 1 : 0;
+	int s1 = (V1->info > isovalue) ? 1 : 0;
+	int s2 = (V2->info > isovalue) ? 1 : 0;
+	int s3 = (V3->info > isovalue) ? 1 : 0;
+
+	// Process each case
+	if (s0 == 0 && s1 == 0 && s2 == 0 && s3 == 0)
+	{
+		// CASE 0: All negative => No triangles
+	}
+	else if (s0 == 1 && s1 == 0 && s2 == 0 && s3 == 0)
+	{
+		// Case 1: 1000
+		// One positive vertex, all others negative => One triangle
+		// Vertices are in edges 0-1, 0-2 and 0-3
+
+		// Generate the triangle and add it only if it is not NULL
+		// NOTE: A triangle is NULL if it is a degenerated triangle
+		Triangle* triangle = buildTriangle(V0, V1, V2, V3, isovalue);
+		if (triangle != NULL)
+		{
+			triangles->push_back(triangle);
+		}
+	}
+	else if (s0 == 0 && s1 == 1 && s2 == 0 && s3 == 0)
+	{
+		// Case 2: 0100
+		// One positive vertex, all others negative => One triangle
+		// Vertices are in edges 1-2, 1-3 and 1-0
+
+		// Generate the triangle and add it only if it is not NULL
+		// NOTE: A triangle is NULL if it is a degenerated triangle
+		Triangle* triangle = buildTriangle(V1, V2, V0, V3, isovalue);
+		if (triangle != NULL)
+		{
+			triangles->push_back(triangle);
+		}
+	}
+	else if (s0 == 1 && s1 == 1 && s2 == 0 && s3 == 0)
+	{
+		std::vector<Triangle*>* t = buildTriangles(V0, V1, V2, V3, isovalue);
+		for (auto it = t->begin(); it != t->end(); ++it)
+		{
+			triangles->push_back(*it);
+		}
+	}
+	else if (s0 == 0 && s1 == 0 && s2 == 1 && s3 == 0)
+	{
+		// Case 4: 0010
+		// One positive vertex, all others negative => One triangle
+		// Vertices are in edges 2-0, 2-1 and 2-3
+
+		// Generate the triangle and add it only if it is not NULL
+		// NOTE: A triangle is NULL if it is a degenerated triangle
+		Triangle* triangle = buildTriangle(V2, V0, V1, V3, isovalue);
+		if (triangle != NULL)
+		{
+			triangles->push_back(triangle);
+		}
+	}
+	else if (s0 == 1 && s1 == 0 && s2 == 1 && s3 == 0)
+	{
+		std::vector<Triangle*>* t = buildTriangles(V0, V2, V1, V3, isovalue);
+		for (auto it = t->begin(); it != t->end(); ++it)
+		{
+			triangles->push_back(*it);
+		}
+	}
+	else if (s0 == 0 && s1 == 1 && s2 == 1 && s3 == 0)
+	{
+		std::vector<Triangle*>* t = buildTriangles(V1, V2, V0, V3, isovalue);
+		for (auto it = t->begin(); it != t->end(); ++it)
+		{
+			triangles->push_back(*it);
+		}
+
+	}
+	else if (s0 == 1 && s1 == 1 && s2 == 1 && s3 == 0)
+	{
+		// Case 7: 1110
+		// One negative vertex, all others positive => One triangle
+		// Vertices are in edges 3-2, 3-0 and 3-1
+
+		// Generate the triangle and add it only if it is not NULL
+		// NOTE: A triangle is NULL if it is a degenerated triangle
+		Triangle* triangle = buildTriangle(V3, V0, V2, V1, isovalue);
+		if (triangle != NULL)
+		{
+			triangles->push_back(triangle);
+		}
+	}
+	else if (s0 == 0 && s1 == 0 && s2 == 0 && s3 == 1)
+	{
+		// Case 8: 0001
+		// One positive vertex, all others negative => One triangle
+		// Vertices are in edges 3-2, 3-0 and 3-1
+
+		// Generate the triangle and add it only if it is not NULL
+		// NOTE: A triangle is NULL if it is a degenerated triangle
+		Triangle* triangle = buildTriangle(V3, V2, V1, V0, isovalue);
+		if (triangle != NULL)
+		{
+			triangles->push_back(triangle);
+		}
+	}
+	else if (s0 == 1 && s1 == 0 && s2 == 0 && s3 == 1)
+	{
+		std::vector<Triangle*>* t = buildTriangles(V0, V3, V1, V2, isovalue);
+		for (auto it = t->begin(); it != t->end(); ++it)
+		{
+			triangles->push_back(*it);
+		}
+	}
+	else if (s0 == 0 && s1 == 1 && s2 == 0 && s3 == 1)
+	{
+		std::vector<Triangle*>* t = buildTriangles(V1, V3, V0, V2, isovalue);
+		for (auto it = t->begin(); it != t->end(); ++it)
+		{
+			triangles->push_back(*it);
+		}
+	}
+	else if (s0 == 1 && s1 == 1 && s2 == 0 && s3 == 1)
+	{
+		// Case 11: 1101
+		// One negative vertex, all others positive => One triangle
+		// Vertices are in edges 2-0, 2-3 and 2-1
+
+		// Generate the triangle and add it only if it is not NULL
+		// NOTE: A triangle is NULL if it is a degenerated triangle
+		Triangle* triangle = buildTriangle(V2, V0, V1, V3, isovalue);
+		if (triangle != NULL)
+		{
+			triangles->push_back(triangle);
+		}
+	}
+	else if (s0 == 0 && s1 == 0 && s2 == 1 && s3 == 1)
+	{
+		std::vector<Triangle*>* t = buildTriangles(V2, V3, V0, V1, isovalue);
+		for (auto it = t->begin(); it != t->end(); ++it)
+		{
+			triangles->push_back(*it);
+		}
+	}
+	else if (s0 == 1 && s1 == 0 && s2 == 1 && s3 == 1)
+	{
+		// Case 13: 1011
+		// One negative vertex, all others positive => One triangle
+		// Vertices are in edges 1-2, 1-3 and 1-0
+
+		// Generate the triangle and add it only if it is not NULL
+		// NOTE: A triangle is NULL if it is a degenerated triangle
+		Triangle* triangle = buildTriangle(V1, V2, V0, V3, isovalue);
+		if (triangle != NULL)
+		{
+			triangles->push_back(triangle);
+		}
+
+	}
+	else if (s0 == 0 && s1 == 1 && s2 == 1 && s3 == 1)
+	{
+		// Case 14: 0111
+		// One negative vertex, all others positive => One triangle
+		// Vertices are in edges 0-1, 0-3 and 0-2
+
+		// Generate the triangle and add it only if it is not NULL
+		// NOTE: A triangle is NULL if it is a degenerated triangle
+		Triangle* triangle = buildTriangle(V0, V1, V2, V3, isovalue);
+		if (triangle != NULL)
+		{
+			triangles->push_back(triangle);
+		}
+	}
+	else if (s0 == 1 && s1 == 1 && s2 == 1 && s3 == 1)
+	{
+		// CASE 15: All positive => No triangles
+	}
+	else
+	{
+		// Something weird is occuring here!
+	}
+
+	// Return the generated triangles
+	return triangles;
+}
+
+/*
+	Run the marching tetrahedra using the information of the cell vertices and the isovalue
+	@param v0
+	@param v1
+	@param v2
+	@param v3
+	@param v4
+	@param v5
+	@param v6
+	@param isovalue
+	@return The pointer to the vector containing the triangles from the cell
+*/
+std::vector<Triangle*>* marchCellTetrahedra(Vector3* v0, Vector3* v1, Vector3* v2, Vector3* v3,
+                                            Vector3* v4, Vector3* v5, Vector3* v6, Vector3* v7, double isovalue)
+{
+    // Initialize the vector where the triangles will be stored
+    std::vector<Triangle*>* triangles = new std::vector<Triangle*>();
+
+    // Run the march algorithm on each tetrahedra and keep the generated triangles
+    std::vector<Triangle*>* tetrahedra1Triangles = marchTetrahedra(v0, v1, v3, v5, isovalue);
+    std::vector<Triangle*>* tetrahedra2Triangles = marchTetrahedra(v1, v2, v3, v5, isovalue);
+    std::vector<Triangle*>* tetrahedra3Triangles = marchTetrahedra(v0, v3, v4, v5, isovalue);
+    std::vector<Triangle*>* tetrahedra4Triangles = marchTetrahedra(v2, v3, v5, v6, isovalue);
+    std::vector<Triangle*>* tetrahedra5Triangles = marchTetrahedra(v3, v4, v5, v7, isovalue);
+    std::vector<Triangle*>* tetrahedra6Triangles = marchTetrahedra(v3, v5, v6, v7, isovalue);
+
+    // Merge the tetrahedra vectors into the general one
+    for (auto it = tetrahedra1Triangles->begin(); it != tetrahedra1Triangles->end(); ++it)
+    {
+        triangles->push_back(*it);
+    }
+
+    for (auto it = tetrahedra2Triangles->begin(); it != tetrahedra2Triangles->end(); ++it)
+    {
+        triangles->push_back(*it);
+    }
+
+    for (auto it = tetrahedra3Triangles->begin(); it != tetrahedra3Triangles->end(); ++it)
+    {
+        triangles->push_back(*it);
+    }
+
+    for (auto it = tetrahedra4Triangles->begin(); it != tetrahedra4Triangles->end(); ++it)
+    {
+        triangles->push_back(*it);
+    }
+
+    for (auto it = tetrahedra5Triangles->begin(); it != tetrahedra5Triangles->end(); ++it)
+    {
+        triangles->push_back(*it);
+    }
+
+    for (auto it = tetrahedra6Triangles->begin(); it != tetrahedra6Triangles->end(); ++it)
+    {
+        triangles->push_back(*it);
+    }
+
+    // Return the triangles
+    return triangles;
 }
 
 }

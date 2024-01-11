@@ -1,11 +1,9 @@
-.DS_Store
 *.dae
 _mcubes.cpp
-*.py[cod]
 .vscode
 .mypy_cache
 
-.vscode
+.idea
 
 # Created by https://www.gitignore.io/api/osx,linux,python
 # Edit at https://www.gitignore.io/?templates=osx,linux,python
