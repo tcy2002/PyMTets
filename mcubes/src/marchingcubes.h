@@ -80,7 +80,7 @@ void marching_cubes(const vector3& lower, const vector3& upper,
                 v[6] = f(x_dx, y_dy, z_dz); v[7] = f(x, y_dy, z_dz);
 
                 // 0-8: (---)(+--)(+-+)(--+)(-+-)(++-)(+++)(-++)
-                // the order is changed
+                // swap y z
                 auto v0 = new Vector3(x, z, y);
                 auto v1 = new Vector3(x_dx, z, y);
                 auto v2 = new Vector3(x_dx, z, y_dy);
@@ -110,7 +110,7 @@ void marching_cubes(const vector3& lower, const vector3& upper,
     auto add_vertex = [&](Vector3* v) -> int {
         if (vertex_map.find({v->x, v->y, v->z}) == vertex_map.end()) {
             vertices.push_back(v->x);
-            vertices.push_back(v->z);
+            vertices.push_back(v->z); // swap y z back
             vertices.push_back(v->y);
             vertex_map[{v->x, v->y, v->z}] = ++current_id;
             return current_id;
